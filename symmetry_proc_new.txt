@@ -1,0 +1,154 @@
+group_kpts_new := proc(kconserv, kpts)
+ local pairs, bas, i, j, k, l, pair, sorted_pairs, temp_list, labels;
+ pairs := [];
+ for bas in kconserv do
+  i, j, k, l := op(bas);
+  pair := convert({[i, j], [k, l]}, list);
+  if nops(pair) = 1 then
+   pair := [[i, j], [k, l]];
+  end if;
+  pairs := [op(pairs), pair];
+ end do;
+ sorted_pairs := [[]];
+ labels := [];
+ for i to kpts do
+  for j to kpts do
+   temp_list := [];
+   for bas to nops(kconserv) do
+    if member([i, j], pairs[bas]) then
+    #if [i,j] = pairs[bas][1] then
+     for k to nops(sorted_pairs) do
+      new_pair := convert(convert(pairs[bas][2], set), list);
+       if nops(new_pair) = 1 then
+        new_pair := pairs[bas][2];
+       end if:
+      if member(new_pair, sorted_pairs[k]) then
+       break;
+      elif k = nops(sorted_pairs) then
+       temp_list := convert({new_pair, op(temp_list)}, list);
+      end if;
+     end do;
+    end if;
+   end do;
+   sorted_pairs := {op(sorted_pairs), temp_list};
+  end do;
+ end do;
+ return convert(sorted_pairs[2..], list);
+ end proc:
+
+group_kpts_G_new := proc(kconserv, kpts)
+ local pairs, bas, i, j, k, l, pair, sorted_pairs, temp_list, labels;
+ pairs := [];
+ for bas in kconserv do
+  i, j, k, l := op(bas);
+  pair := [[i, k], [j, l]];
+  if nops(pair) = 1 then
+   pair := [[i, k], [j, l]];
+  end if;
+  pairs := [op(pairs), pair];
+ end do;
+ sorted_pairs := [[]];
+ labels := [];
+ for i to kpts do
+  for j to kpts do
+   temp_list := [];
+   for bas to nops(kconserv) do
+    if [i,j] = pairs[bas][1] then
+     for k to nops(sorted_pairs) do
+      if member(pairs[bas][2], sorted_pairs[k]) then
+       break;
+      elif k = nops(sorted_pairs) then
+       temp_list := convert({pairs[bas][2], op(temp_list)}, list);
+      end if;
+     end do;
+    end if;
+   end do;
+   sorted_pairs := {op(sorted_pairs), temp_list};
+  end do;
+ end do;
+ return convert(sorted_pairs[2..], list);
+ end proc:
+
+group_kpts_D1_new := proc(kpts)
+ local list;
+ list := [seq([[i]], i = 1..kpts)]:
+ return list:
+ end proc:
+
+group_global_pts_D1_new := proc(kconserv, kpts, nao)
+ local pairs, sym_list, p, i, j, glo_pair, q, sym_pair, pair, x, nm;
+ global group_kpts_D1_new;
+ #pairs := group_kpts_D1_new(kconserv, kpts);
+ pairs := group_kpts_D1_new(kpts);
+ sym_list := [];
+ for p to kpts do
+  class||p := [];
+ end do;
+ for i to kpts*nao do
+  for j to kpts*nao do
+   glo_pair := convert({[i], [j]}, list);
+   if nops(glo_pair) = 1 then
+    glo_pair := [[i], [j]];
+   end if;
+   p := floor((i - 1)/nao) + 1;
+   q := floor((j - 1)/nao) + 1;
+   sym_pair := convert({[p], [q]}, list);
+   if nops(sym_pair) = 1 then
+    sym_pair := [[p], [q]];
+   end if;
+   for pair to nops(pairs) do
+    if member([q], pairs[pair]) then
+     nm := op(pairs[pair][1]);
+     class||nm := {op(class||nm), [j]};
+    end if;
+   end do;
+  end do;
+ end do;
+ for x to kpts do
+  sym_list := convert({op(sym_list), convert(class||x, list)}, list);
+ end do;
+ return sym_list;
+ end proc:
+
+group_global_pts_optimized := proc(kpts, nao, kconserv, mat)
+ local pairs, labels, i, j, k, l, glo_pair, s, r, q, p, sym_pair, sym_list, loc_sym_list, sym_names, pair, x, y, nm, lb;
+ global group_kpts_new, group_kpts_G_new;
+ if mat = "D" then
+  pairs := group_kpts_new(kconserv, kpts);
+ elif mat = "G" then
+  pairs := group_kpts_G_new(kconserv, kpts);
+ end if:
+ sym_list := [];
+ for p to kpts do
+  for q to kpts do
+   class||p||q := [];
+  end do;
+ end do;
+   for k to nao*kpts do
+    for l to nao*kpts do
+     s := floor((l - 1)/nao) + 1;
+     r := floor((k - 1)/nao) + 1;
+     for pair to nops(pairs) do
+      if member([r, s], pairs[pair]) then
+       nm, lb := op(pairs[pair][1]);
+       if mat = "D" then
+        if k = l then
+         class||nm||lb := {op(class||nm||lb), [k, l]};
+        else
+         class||nm||lb := {op(class||nm||lb), convert({k, l}, list)};
+        end if:
+       elif mat = "G" then
+         class||nm||lb := {op(class||nm||lb), [k, l]};
+       end if:
+      end if;
+     end do;
+    end do;
+   end do;
+ for x to kpts do
+  for y to kpts do
+   sym_list := convert([op(sym_list), convert(class||x||y, list)], list);
+  end do; 
+ end do; 
+return sym_list[..kpts];
+end proc:
+

@@ -1,0 +1,50 @@
+with(QuantumChemistry):
+Digits := 15:
+#kernelopts(stacklimit=73240000):
+
+F := Import("NiO_F_act_333_primitive_active4.npy"):
+F_rs := Matrix(ArrayTools:-Reshape(F, [108,108]), datatype = complex[8]);
+
+
+V := Import("NiO_eri_333_primitive_active4.npz"):
+dataV := V["data"];
+coordV := V["coords"]+~1;
+nm := LinearAlgebra:-RowDimension(dataV);
+V_rs := Array(1..108, 1..108, 1..108, 1..108, datatype = complex[8]):
+for i to nm do
+ coord := op(convert(coordV[..,i], list)):
+ val := dataV[i]:
+ V_rs[coord] := val:
+end do:
+
+mo[one_electron_integrals] := F_rs:
+mo[two_electron_integrals] := V_rs;
+
+read("symmetry_proc_new.txt"):
+
+symmetrymod := module()
+ local ModuleApply;
+ ModuleApply := proc(tab, ls)
+  local sym;
+  global D2_list, D1_list;
+  if ls = [1, 1] then
+   sym := D2_list;
+  elif ls = [1] then
+   sym := D1_list;
+  elif ls = [1, -1] then
+   sym := G2_list;
+  end if;
+  return sym;
+ end proc;
+end module;
+symmetry_module := evaln(symmetry_module);
+
+kconserv := convert(Import("NiO_333_primitive_kconserve.npy"), list, nested=true):
+
+D2_list := group_global_pts_optimized(27, 4, kconserv, "D"):
+D1_list := group_global_pts_D1_new(kconserv, 27, 4):
+G2_list := group_global_pts_optimized(27, 4, kconserv, "G"):
+
+data := Variational2RDM(108, mo_integrals = mo, return_rdm = "rdm1_and_rdm2", 'symmetry_module' = symmetrymod, conv_tol = 0.1e-5, max_cycle_sdp = 300000);
+
+save data, `NiO_333_primitive_active4.m`;
