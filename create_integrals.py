@@ -1,3 +1,6 @@
+# V2RDM-PBC
+# Copyright Anna O. Schouten and David A. Mazziotti 2025
+
 import numpy as np
 import scipy.linalg
 import sparse
