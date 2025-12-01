@@ -1,3 +1,3 @@
 # V2RDM-PBC
 
-Variational 2-RDM theory with periodic boundary conditions.
+Data and a computational example from "Two-electron reduced density matrix method for the electronic structure of correlated materials" by Anno O. Schouten, Simon Ewing, and David A. Mazziotti.
