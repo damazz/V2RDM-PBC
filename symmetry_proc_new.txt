@@ -1,4 +1,8 @@
+# V2RDM-PBC
+# Copyright Anna O. Schouten and David A. Mazziotti 2025
+
 group_kpts_new := proc(kconserv, kpts)
+ option `Copyright Anna O. Schouten and David A. Mazziotti 2025`;
  local pairs, bas, i, j, k, l, pair, sorted_pairs, temp_list, labels;
  pairs := [];
  for bas in kconserv do
@@ -37,6 +41,7 @@ group_kpts_new := proc(kconserv, kpts)
  end proc:
 
 group_kpts_G_new := proc(kconserv, kpts)
+ option `Copyright Anna O. Schouten and David A. Mazziotti 2025`;
  local pairs, bas, i, j, k, l, pair, sorted_pairs, temp_list, labels;
  pairs := [];
  for bas in kconserv do
@@ -70,12 +75,14 @@ group_kpts_G_new := proc(kconserv, kpts)
  end proc:
 
 group_kpts_D1_new := proc(kpts)
+ option `Copyright Anna O. Schouten and David A. Mazziotti 2025`;
  local list;
  list := [seq([[i]], i = 1..kpts)]:
  return list:
  end proc:
 
 group_global_pts_D1_new := proc(kconserv, kpts, nao)
+ option `Copyright Anna O. Schouten and David A. Mazziotti 2025`;
  local pairs, sym_list, p, i, j, glo_pair, q, sym_pair, pair, x, nm;
  global group_kpts_D1_new;
  #pairs := group_kpts_D1_new(kconserv, kpts);
@@ -111,6 +118,7 @@ group_global_pts_D1_new := proc(kconserv, kpts, nao)
  end proc:
 
 group_global_pts_optimized := proc(kpts, nao, kconserv, mat)
+ option `Copyright Anna O. Schouten and David A. Mazziotti 2025`;
  local pairs, labels, i, j, k, l, glo_pair, s, r, q, p, sym_pair, sym_list, loc_sym_list, sym_names, pair, x, y, nm, lb;
  global group_kpts_new, group_kpts_G_new;
  if mat = "D" then
@@ -151,4 +159,5 @@ group_global_pts_optimized := proc(kpts, nao, kconserv, mat)
  end do; 
 return sym_list[..kpts];
 end proc:
+
 
